@@ -30,3 +30,38 @@ class User:
                 print(f" - {appointment.date_time} at clinic {appointment.clinic_id}")
         else:
             print("User has no appointments.")
+class Clinic:
+    def __init__(self, clinic_id, name, address, contact_info, services, availability):
+        self.clinic_id = clinic_id
+        self.name = name
+        self.address = address
+        self.contact_info = contact_info
+        self.services = services
+        self.availability = availability
+        self.appointments = []
+
+    def add_clinic(self):
+        # Logic for adding a clinic
+        print(f"Clinic {self.name} with ID {self.clinic_id} added successfully.")
+
+    def update_clinic_info(self, new_name, new_address, new_contact_info, new_services):
+        # Logic for updating clinic information
+        self.name = new_name
+        self.address = new_address
+        self.contact_info = new_contact_info
+        self.services = new_services
+        print("Clinic information updated successfully.")
+
+    def set_availability(self, status):
+        # Logic for setting clinic availability
+        self.availability = status
+        print(f"Clinic availability set to {status}.")
+
+    def view_appointments(self):
+        # Logic for viewing clinic appointments
+        if self.appointments:
+            print(f"Clinic {self.name} with ID {self.clinic_id} has the following appointments:")
+            for appointment in self.appointments:
+                print(f" - {appointment.date_time} for user {appointment.user_id}")
+        else:
+            print("Clinic has no appointments.")
