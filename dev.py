@@ -65,3 +65,34 @@ class Clinic:
                 print(f" - {appointment.date_time} for user {appointment.user_id}")
         else:
             print("Clinic has no appointments.")
+class Appointment:
+    def __init__(self, appointment_id, clinic_id, user_id, date_time, status):
+        self.appointment_id = appointment_id
+        self.clinic_id = clinic_id
+        self.user_id = user_id
+        self.date_time = date_time
+        self.status = status
+
+    def book_appointment(self):
+        # Logic for booking a patient's appointment
+        if self.status == "Available":
+            self.status = "Booked"
+            print(f"Appointment {self.appointment_id} booked successfully.")
+        else:
+            print("Appointment is not available for booking.")
+
+    def cancel_appointment(self):
+        # Logic for canceling a patient's appointment
+        if self.status == "Booked":
+            self.status = "Available"
+            print(f"Appointment {self.appointment_id} canceled successfully.")
+        else:
+            print("Appointment is not booked.")
+
+    def reschedule_appointment(self, new_date_time):
+        # Logic for rescheduling a patient's appointment
+        if self.status == "Booked":
+            self.date_time = new_date_time
+            print(f"Appointment {self.appointment_id} rescheduled successfully.")
+        else:
+            print("Appointment is not booked, cannot be rescheduled.")
