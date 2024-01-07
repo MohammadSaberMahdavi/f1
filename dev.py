@@ -1,3 +1,23 @@
+def main():
+    while True:
+        s_o = input("s.o:")
+        print("1")
+        print("2")
+        if s_o=='1':
+            User.register()
+        if s_o=="2":
+            User.login()
+            username=input("username")
+            password=input("password")
+
+
+
+
+
+import sqlite3
+from datetime import datetime
+
+
 class User:
     def __init__(self, user_id, name, email, password, user_type):
         self.user_id = user_id
@@ -5,31 +25,98 @@ class User:
         self.email = email
         self.password = password
         self.user_type = user_type
-        self.appointments = []
 
-    def register(self):
-        # Logic for user registration
-        print(f"User {self.name} with ID {self.user_id} registered successfully.")
+    @classmethod
+    def register(cls, username, email, password, user_type):
+        # ایجاد اتصال به دیتابیس
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
 
+        # ایجاد جدول اگر وجود نداشته باشد
+        cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id INTEGER PRIMARY KEY,
+                    username TEXT,
+                    email TEXT,
+                    password TEXT,
+                    user_type TEXT
+                )
+            ''')
+
+        # ایجاد شناسه یکتا برای کاربر
+        user_id = int(datetime.now().timestamp())
+
+        # درج اطلاعات کاربر به دیتابیس
+        cursor.execute('''
+                INSERT INTO users (user_id, username, email, password, user_type)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (user_id, username, email, password, user_type))
+
+        # ذخیره تغییرات و بستن اتصال
+        conn.commit()
+        conn.close()
+
+        # ایجاد نمونه جدید از کاربر
+        new_user = cls(user_id, username, email, password, user_type)
+        return new_user
     def login(self):
-        # Logic for user login
-        print(f"User {self.name} with ID {self.user_id} logged in successfully.")
+        # اتصال به پایگاه داده SQLite
+        connection = sqlite3.connect('users_database.db')
+        cursor = connection.cursor()
+
+        # اجرای دستور SQL برای ورود کاربر
+        cursor.execute('SELECT * FROM users WHERE Email=? AND Password=?', (self.email, self.password))
+
+        # گرفتن اطلاعات کاربر اگر وجود داشته باشد
+        user_data = cursor.fetchone()
+
+        # بستن اتصال
+        connection.close()
+
+        if user_data:
+            print(f"User {user_data[1]} with ID {user_data[0]} logged in successfully.")
+        else:
+            print("Invalid email or password.")
 
     def update_profile(self, new_name, new_email, new_password):
-        # Logic for updating user profile
-        self.name = new_name
-        self.email = new_email
-        self.password = new_password
+        # اتصال به پایگاه داده SQLite
+        connection = sqlite3.connect('users_database.db')
+        cursor = connection.cursor()
+
+        # اجرای دستور SQL برای به‌روزرسانی پروفایل کاربر
+        cursor.execute('''
+            UPDATE users
+            SET Name=?, Email=?, Password=?
+            WHERE UserID=?
+        ''', (new_name, new_email, new_password, self.user_id))
+
+        # ذخیره تغییرات و بستن اتصال
+        connection.commit()
+        connection.close()
+
         print("User profile updated successfully.")
 
     def view_appointments(self):
-        # Logic for viewing user appointments
-        if self.appointments:
+        # اتصال به پایگاه داده SQLite
+        connection = sqlite3.connect('users_database.db')
+        cursor = connection.cursor()
+
+        # اجرای دستور SQL برای مشاهده نوبت‌های کاربر
+        cursor.execute('SELECT * FROM appointments WHERE UserID=?', (self.user_id,))
+
+        # گرفتن نوبت‌های کاربر
+        user_appointments = cursor.fetchall()
+
+        # بستن اتصال
+        connection.close()
+
+        if user_appointments:
             print(f"User {self.name} with ID {self.user_id} has the following appointments:")
-            for appointment in self.appointments:
-                print(f" - {appointment.date_time} at clinic {appointment.clinic_id}")
+            for appointment in user_appointments:
+                print(f" - {appointment[3]} at clinic {appointment[1]}")
         else:
             print("User has no appointments.")
+
 class Clinic:
     def __init__(self, clinic_id, name, address, contact_info, services, availability):
         self.clinic_id = clinic_id
