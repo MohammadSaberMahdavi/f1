@@ -251,13 +251,40 @@ class Clinic:
         
 
     def update_clinic_info(self, new_name, new_address, new_contact_info, new_services):
-        # Logic for updating clinic information
-        self.name = new_name
-        self.address = new_address
-        self.contact_info = new_contact_info
-        self.services = new_services
-        print("Clinic information updated successfully.")
-
+        
+        # connect to database
+        conn = sqlite3.connect('clinics.db')
+        curser = conn.cursor()
+        
+        # search for clinic with the name of clinic
+        curser.execute('''
+            select * from clinics 
+            where name =?''',
+            (new_name,))
+        # check if clinic exists
+        if curser.fetchone():
+            # update the clinic info
+            curser.execute('''
+                UPDATE clinics
+                SET name =?, address =?, contact_info =?, services =?
+                WHERE name =?''',
+                (new_name, new_address, new_contact_info, new_services, new_name))
+            
+            # commit changes
+            conn.commit()
+            # close connection
+            conn.close()
+            # create new clinic object
+            update_clinic = Clinic(self.clinic_id, new_name, new_address, new_contact_info, new_services, self.availability)
+            print(f"Clinic {new_name} with ID {self.clinic_id} updated successfully.")
+            return update_clinic
+        else:
+            # close connection
+            conn.close()
+            print(f"Clinic {self.name} with ID {self.clinic_id} not found.")
+            return None
+        
+        
     def set_availability(self, status):
         # Logic for setting clinic availability
         self.availability = status
