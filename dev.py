@@ -28,7 +28,6 @@ class User:
         # ایجاد اتصال به دیتابیس
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
-
         # ایجاد جدول اگر وجود نداشته باشد
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -220,8 +219,36 @@ class Clinic:
         self.appointments = []
 
     def add_clinic(self):
-        # Logic for adding a clinic
+        # connect to database
+        conn = sqlite3.connect('clinics.db')
+        curser = conn.cursor()
+        # Create the table if it does not exist
+        curser.execute('''
+            CREATE TABLE IF NOT EXISTS clinics (
+                clinic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                address TEXT,
+                contact_info TEXT,
+                services TEXT,
+                availability TEXT
+            )
+        ''') 
+        
+        # create query
+        curser.execute('''
+            INSERT INTO clinics (name, address, contact_info, services, availability)''')
+        
+        # commit changes
+        conn.commit()
+        # close connection
+        conn.close()
+        
+        # create new clinic object
+        new_clinic = Clinic(self.clinic_id, self.name, self.address, self.contact_info, self.services, self.availability)
         print(f"Clinic {self.name} with ID {self.clinic_id} added successfully.")
+        return new_clinic
+        
+        
 
     def update_clinic_info(self, new_name, new_address, new_contact_info, new_services):
         # Logic for updating clinic information
@@ -244,6 +271,9 @@ class Clinic:
                 print(f" - {appointment.date_time} for user {appointment.user_id}")
         else:
             print("Clinic has no appointments.")
+
+
+            
 class Appointment:
     def __init__(self, appointment_id, clinic_id, user_id, date_time, status):
         self.appointment_id = appointment_id
